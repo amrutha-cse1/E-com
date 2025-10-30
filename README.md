@@ -1,70 +1,130 @@
-# Getting Started with Create React App
+# Mock E‑Com Cart — Full Stack Assignment
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This repository contains a simple full‑stack shopping cart demo (React frontend + FastAPI backend). It implements product listing, add/remove cart items, totals, and a mock checkout that returns a receipt. The backend can run with MongoDB or in a lightweight in‑memory mode (no DB required) for quick local demos.
+A small full‑stack mock e‑commerce cart application built as an assignment/demo.
+Backend: FastAPI (Python). Frontend: React (Create React App + craco + Tailwind).
 
-## Available Scripts
+## Key features
+- Product listing (GET /api/products)
+- User authentication: register & login (JWT)
+- Cart management and checkout endpoints
+- In‑memory fallback so the app can run without a database for local testing
+- Demo user flow for quick review
 
-In the project directory, you can run:
+## Tech stack
+- Backend: Python 3.10+ (FastAPI, uvicorn)
+- Frontend: React (Create React App), axios, Tailwind CSS
+- Dev tooling: npm / Node.js, pip / virtualenv
 
-### `npm start`
+## Prerequisites
+- Windows PowerShell (or similar shell)
+- Python 3.10+ (or the version used in this project)
+- Node.js & npm (Node 16+ recommended)
+- Git (optional, for repo work)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Quick start (Windows PowerShell)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Open two PowerShell windows (one for backend, one for frontend).
 
-### `npm test`
+### Backend (API)
+```powershell
+cd C:\Users\Amrutha\OneDrive\Desktop\App\app\backend
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# create and activate a virtual environment (if needed)
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 
-### `npm run build`
+# install dependencies
+pip install -r requirements.txt
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# run the API server
+uvicorn server:app --host 127.0.0.1 --port 8000 --reload
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+API: `http://127.0.0.1:8000`
+Docs (Swagger/OpenAPI): `http://127.0.0.1:8000/docs`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Notes:
+- The backend provides a simple in‑memory storage fallback for local evaluation. If you configure a real DB, the server will try to use it.
 
-### `npm run eject`
+### Frontend (React)
+```powershell
+cd C:\Users\Amrutha\OneDrive\Desktop\App\app\frontend
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# install dependencies (first time)
+npm install --legacy-peer-deps
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# run dev server
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Open: `http://localhost:3000`
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+If the frontend can't reach the backend, it falls back to `http://localhost:8000` in local dev.
 
-## Learn More
+## Environment variables
+- Frontend: `REACT_APP_BACKEND_URL` (optional build-time backend URL). Local dev prefers `http://localhost:8000`.
+- Backend: continues to work with defaults; add env-based config if you wire a DB or external services.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## API endpoints (overview)
+- GET /api/products — list products
+- POST /api/auth/register — register user
+	- Body example: `{ "email": "you@example.com", "password": "secret", "name": "Your Name" }`
+- POST /api/auth/login — login (returns JWT)
+	- Body example: `{ "email": "you@example.com", "password": "secret" }`
+- Authenticated endpoints (require Bearer token):
+	- GET /api/cart — get user's cart
+	- POST /api/cart — add item to cart
+	- POST /api/checkout — complete checkout
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+cURL examples:
+```bash
+# list products
+curl http://127.0.0.1:8000/api/products
 
-### Code Splitting
+# register example
+curl -X POST http://127.0.0.1:8000/api/auth/register -H "Content-Type: application/json" -d '{"email":"test@example.com","password":"pass123","name":"Test"}'
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Tests
+Lightweight backend tests / smoke tests may be included. From the `backend/` directory (with venv activated):
+```powershell
+python backend_test.py
+```
 
-### Analyzing the Bundle Size
+## Project layout (top-level)
+- `backend/` — FastAPI backend code and requirements
+- `frontend/` — React frontend
+- `README.md` — this file
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Production build (frontend)
+```powershell
+cd frontend
+npm run build
+# serve the build folder or integrate with backend
+```
 
-### Making a Progressive Web App
+## Troubleshooting
+- If `uvicorn` reports port-in-use, find and stop the process or run on a different port:
+```powershell
+netstat -ano | findstr :8000
+taskkill /PID <PID> /F
+```
+- If frontend shows CORS or connection errors, ensure the backend is running and `REACT_APP_BACKEND_URL` is correct.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Notes for reviewers
+- This project was prepared as an assignment demo. It includes an in‑memory fallback so it can be evaluated without external DB setup.
+- Dev-only analytics and preview-service references were removed for a neutral demo.
 
-### Advanced Configuration
+## Contributing
+This is a demo project. Small improvements welcome (tests, DB wiring, auth hardening).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## License
+Provided for assignment/demo purposes. Add a LICENSE file (e.g., MIT) to specify reuse terms.
 
-### Deployment
+## Contact
+If you need help or the repo link, message me through the assignment page. — Amrutha
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+If you want a shorter `README.md` optimized for the assignment upload page, I can create that instead. Let me know and I'll update the file.
